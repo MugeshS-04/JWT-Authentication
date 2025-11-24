@@ -1,8 +1,9 @@
 import joi from 'joi'
 
 //Register Validation
-export const reg_val = joi.object(
-    {
+export const register_validate = (req, res, next) => {
+
+    const register_valid_obj = joi.object({
         name : joi.string().required(),
         age : joi.number().integer().min(18).required(),
         email : joi.string().email().required(),
@@ -12,13 +13,42 @@ export const reg_val = joi.object(
             "any.required": "Password is required"
         }),
         conf_pass : joi.ref('pass')
+    })
+
+    const isvalid = register_valid_obj.validate(req.body)
+
+    if(isvalid.error)
+    {
+        res.json({success : false, message : isvalid.error.message})
     }
-)
+    else
+    {   
+        next()
+    }
+}
 
 //Login Validation
-export const login_val = joi.object(
+export const login_validate = (req, res, next) => {
+    const login_valid_obj = joi.object(
     {
         email : joi.string().email().required(),
         pass : joi.string().required()
+    })
+
+    const obj = req.body
+
+    const isvalid = login_valid_obj.validate(obj)
+
+    if(isvalid.error) {
+
+        return res.json({success : false, message : isvalid.error.message})
     }
-)
+    else
+    {
+        next()
+    }
+}
+
+
+
+

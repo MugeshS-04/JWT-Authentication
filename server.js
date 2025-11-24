@@ -10,7 +10,6 @@ dotenv.config()
 app.use(express.json())
 app.use(express.urlencoded())
 
-
 app.get("/", (req, res) => {
     res.send("<h1>Api is Working!</h1>")
 })
