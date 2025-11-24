@@ -1,7 +1,6 @@
 import express from 'express'
 import dotenv from 'dotenv'
 import auth_router from './routes/authRoutes.js'
-import cookieParser from 'cookie-parser'
 import user_router from './routes/userRoutes.js'
 
 const app = express()
@@ -10,7 +9,6 @@ const port = 8080
 dotenv.config()
 app.use(express.json())
 app.use(express.urlencoded())
-app.use(cookieParser())
 
 
 app.get("/", (req, res) => {

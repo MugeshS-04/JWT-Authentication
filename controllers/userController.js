@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken'
 import { UserMap } from './authController.js'
 
 export const getDetails = (req, res) => {
+
     try{
         const auth = req.headers['authorization']
 
@@ -18,4 +19,5 @@ export const getDetails = (req, res) => {
     {
         return res.json({success : false, message : error})
     }
+    
 }

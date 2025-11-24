@@ -47,15 +47,7 @@ export const login = async (req, res) => {
             {
                 let access_token = jwt.sign({key : req.body.email}, process.env.JWT_ACCESS_SECRET_KEY, {expiresIn : '10m'})
                 let refresh_token = jwt.sign({key : req.body.email}, process.env.JWT_REFRESH_SECRET_KEY, {expiresIn : '30d'})
-
-                res.cookie('refresh_token', refresh_token, {
-                    httpOnly : true,
-                    secure : true,
-                    sameSite: "strict",
-                    path : "/",
-                })
-
-                return res.json({success : true, message : "Login Successful!", access_token : access_token})
+                return res.json({success : true, message : "Login Successful!", access_token : access_token, refresh_token : refresh_token})
             }
             else
             {
@@ -70,28 +62,26 @@ export const login = async (req, res) => {
 }
 
 export const refresh = (req, res) => {
-    const { refresh_token } =req.cookies
-
-    if(!refresh_token)
-    {
-        return res.json({success : false, message : "No refresh token, Login again!"})
-    }
-
+    
     try{
+        const header = req.headers['authorization']
+
+        const refresh_token = header.split(' ')[1]
+
+        if(!refresh_token)
+        {
+            return res.json({success : false, message : "No refresh token, Login again!"})
+        }
+
         const valid = jwt.verify(refresh_token, process.env.JWT_REFRESH_SECRET_KEY)
 
         const access_token = jwt.sign({key : valid.key}, process.env.JWT_ACCESS_SECRET_KEY, {expiresIn : '1d'})
         
         return res.json({success : true, message : "Token Generated", access_token : access_token})
-
     }
     catch(error)
     {
         return res.json({success : false, message : error})
     }
-}
-
-export const logout = (req, res) => {
-    res.clearCookie("refresh_token")
-    res.json({success : true, message : "Logout successful"})
+    
 }
