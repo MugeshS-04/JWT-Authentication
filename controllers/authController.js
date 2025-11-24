@@ -8,7 +8,11 @@ export const register = async (req, res) => {
 
     let valid = reg_val.validate(req.body)
 
-    if(valid)
+    if(valid.error)
+    {
+        return res.json({success : false, message : valid.error.message})
+    }
+    else
     {
         let hashpass = await bcrypt.hash(req.body.pass, 10)
         
@@ -23,10 +27,6 @@ export const register = async (req, res) => {
 
         return res.json({success : true, message : "Account created Successfully!"})
     }
-    else
-    {
-        return res.json({success : false, message : "Invalid details"})
-    }
 }
 
 export const login = async (req, res) => {
@@ -35,7 +35,7 @@ export const login = async (req, res) => {
 
     if(valid.error)
     {
-        res.json({success : false, message : valid.error.message})
+        return res.json({success : false, message : valid.error.message})
     }
     else
     {
@@ -45,24 +45,48 @@ export const login = async (req, res) => {
 
             if(pass_cmpr)
             {
-                let access_token = jwt.sign({key : req.body.email}, process.env.JWT_ACCESS_SECRET_KEY, {expiresIn : '1d'})
+                let access_token = jwt.sign({key : req.body.email}, process.env.JWT_ACCESS_SECRET_KEY, {expiresIn : '10m'})
                 let refresh_token = jwt.sign({key : req.body.email}, process.env.JWT_REFRESH_SECRET_KEY, {expiresIn : '30d'})
 
                 res.cookie('refresh_token', refresh_token, {
                     httpOnly : true,
-                    secure : true
+                    secure : true,
+                    sameSite: "strict",
+                    path : "/",
                 })
 
-                res.json({success : true, message : "Login Successfull!", access_token : access_token})
+                return res.json({success : true, message : "Login Successful!", access_token : access_token})
             }
             else
             {
-                res.json({success : false, message : "Password is Incorrect"})
+                return res.json({success : false, message : "Password is Incorrect"})
             }
         }
         else
         {
-            res.json({success : false, message : "No Data Available"})
+            return res.json({success : false, message : "No Data Available"})
         }
+    }
+}
+
+export const refresh = (req, res) => {
+    const { refresh_token } =req.cookies
+
+    if(!refresh_token)
+    {
+        return res.json({success : false, message : "No refresh token, Login again!"})
+    }
+
+    try{
+        const valid = jwt.verify(refresh_token, process.env.JWT_REFRESH_SECRET_KEY)
+
+        const access_token = jwt.sign({key : valid.key}, process.env.JWT_ACCESS_SECRET_KEY, {expiresIn : '1d'})
+        
+        return res.json({success : true, message : "Token Generated", access_token : access_token})
+
+    }
+    catch(error)
+    {
+        return res.json({success : false, message : error})
     }
 }
