@@ -90,3 +90,8 @@ export const refresh = (req, res) => {
         return res.json({success : false, message : error})
     }
 }
+
+export const logout = (req, res) => {
+    res.clearCookie("refresh_token")
+    res.json({success : true, message : "Logout successful"})
+}
