@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken'
-import { UserMap } from './authController.js'
+import { UserMap } from '../Data/UserData.js'
 
 export const getDetails = (req, res) => {
 

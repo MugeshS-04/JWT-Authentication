@@ -1,8 +1,7 @@
 import { reg_val, login_val } from "../routes/validation.js"
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-
-export const UserMap = new Map()
+import { UserMap } from '../Data/UserData.js'
 
 export const register = async (req, res) => {
 
@@ -83,5 +82,4 @@ export const refresh = (req, res) => {
     {
         return res.json({success : false, message : error})
     }
-    
 }
