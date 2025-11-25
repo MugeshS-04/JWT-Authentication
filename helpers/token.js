@@ -11,6 +11,8 @@ export const jwt_verify_access = (req, res, next) => {
 
         req.key = valid.key
 
+        console.log(req.key)
+
         next()
     }
     catch(error)
