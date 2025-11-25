@@ -9,10 +9,12 @@ export const register_validate = (req, res, next) => {
         email : joi.string().email().required(),
         pass : joi.string().pattern(new RegExp("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!<>@#$%*?]).{8,}$")).required().messages({
             "string.pattern.base" : "Password must contain at least 8 characters, including uppercase, lowercase, number, and special character.",
-            "string.empty": "Password cannot be empty",
-            "any.required": "Password is required"
+            "string.empty" : "Password cannot be empty",
+            "any.required" : "Password is required"
         }),
-        conf_pass : joi.ref('pass')
+        conf_pass : joi.string().valid(joi.ref('pass')).messages({
+            "any.only" : "Confirm password doesn't match with the password!"
+        })
     })
 
     const isvalid = register_valid_obj.validate(req.body)

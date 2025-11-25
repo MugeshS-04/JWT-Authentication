@@ -1,5 +1,6 @@
 import express from 'express'
 import dotenv from 'dotenv'
+import { errors } from 'celebrate'
 import auth_router from './routes/authRoutes.js'
 import user_router from './routes/userRoutes.js'
 
@@ -16,5 +17,6 @@ app.get("/", (req, res) => {
 
 app.use("/auth/", auth_router)
 app.use("/user/", user_router)
+app.use(errors())
 
 app.listen(port, () => console.log(`Server is listening in port ${port}`))

@@ -4,30 +4,34 @@ import { UserMap } from './UserData.js'
 
 export const register_helper = async (req, res) => {
 
-    let hashpass = await bcrypt.hash(req.body.pass, 10)
+    const { name, age, email, pass } = req.body
+
+    let hashpass = await bcrypt.hash(pass, 10)
     
     let obj = {
-        name : req.body.name,
-        age : req.body.age,
-        email : req.body.email,
+        name : name,
+        age : age,
+        email : email,
         pass : hashpass
     }
 
-    UserMap.set(obj.email, obj)
+    UserMap.set(email, obj)
 
     return res.json({success : true, message : "Account Registered Successfully!"})
 }
 
 export const login_helper = async (req, res) => {
 
-    if(UserMap.has(req.body.email))
+    const { email, pass } = req.body
+
+    if(UserMap.has(email))
     {
-        const password_compare = await bcrypt.compare(req.body.pass, UserMap.get(req.body.email).pass)
+        const password_compare = await bcrypt.compare(pass, UserMap.get(email).pass)
 
         if(password_compare)
         {
-            let access_token = jwt.sign({key : req.body.email}, process.env.JWT_ACCESS_SECRET_KEY, {expiresIn : '10m'})
-            let refresh_token = jwt.sign({key : req.body.email}, process.env.JWT_REFRESH_SECRET_KEY, {expiresIn : '30d'})
+            let access_token = jwt.sign({key : email}, process.env.JWT_ACCESS_SECRET_KEY, {expiresIn : '10m'})
+            let refresh_token = jwt.sign({key : email}, process.env.JWT_REFRESH_SECRET_KEY, {expiresIn : '30d'})
             return res.json({success : true, message : "Login Successful!", access_token : access_token, refresh_token : refresh_token})
         }
         else
