@@ -1,4 +1,3 @@
-import { UserMap } from "./UserData.js"
 
 export const getDetailsHelper = (req, res) => {
 

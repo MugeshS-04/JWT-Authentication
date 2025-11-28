@@ -1,32 +1,44 @@
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
-import { UserMap } from './UserData.js'
+import pool from './UserData.js'
 
 export const register_helper = async (req, res) => {
 
     const { name, age, email, pass } = req.body
-
-    let hashpass = await bcrypt.hash(pass, 10)
     
-    let obj = {
-        name : name,
-        age : age,
-        email : email,
-        pass : hashpass
+    const result = await pool.query("SELECT * FROM users WHERE email = $1", [email])
+
+    console.log(result.rows[0])
+
+    if(result.rows[0]) 
+    {
+        res.json({success : false, message : "Email already exist!"})
+    }
+    else
+    {
+        let hashpass = await bcrypt.hash(pass, 10)
+
+        const db_obj = [ name, age, email, hashpass]
+        
+        pool.query("INSERT INTO USERS (name, age, email, password) VALUES ($1, $2, $3, $4)", db_obj)
+        
+        console.log("Data inserted successfully!")
+
+        return res.json({success : true, message : "Account Registered Successfully!"})
     }
 
-    UserMap.set(email, obj)
-
-    return res.json({success : true, message : "Account Registered Successfully!"})
 }
 
 export const login_helper = async (req, res) => {
 
     const { email, pass } = req.body
 
-    if(UserMap.has(email))
+    const result = await pool.query("SELECT * FROM USERS WHERE email = $1", [email])
+
+    if(result.rows[0])
     {
-        const password_compare = await bcrypt.compare(pass, UserMap.get(email).pass)
+        const hashpass = result.rows[0].password
+        const password_compare = await bcrypt.compare(pass, hashpass)
 
         if(password_compare)
         {
