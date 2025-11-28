@@ -1,11 +1,14 @@
+import pool from "./UserData.js"
 
-export const getDetailsHelper = (req, res) => {
+export const getDetailsHelper = async (req, res) => {
 
     const key = req.key
+
+    const result = await pool.query("SELECT * FROM users WHERE email = $1", [key])
      
-    if(UserMap.has(key))
+    if(result.rows[0])
     {
-        return res.json({ name : UserMap.get(key).name, age : UserMap.get(key).age, email : UserMap.get(key).email })
+        return res.json({ name : result.rows[0].name, age : result.rows[0].age, email : result.rows[0].email })
     }
     else
     {
@@ -13,19 +16,23 @@ export const getDetailsHelper = (req, res) => {
     }
 }
 
-export const setDetailsHelper = (req, res) => {
+export const setDetailsHelper = async (req, res) => {
 
     const user_obj = req.body
+
+    const result = await pool.query("SELECT * FROM users WHERE email = $1", [user_obj.email])
      
-    if(UserMap.has(user_obj.email))
+    if(result.rows[0])
     {
-        const map = UserMap.get(user_obj.email)
-
-        if(user_obj.name) map.name = user_obj.name
-        if(user_obj.age) map.age = user_obj.age 
-
-        UserMap.set(user_obj.email, map)
-
+        if(user_obj.name)
+        {
+            const result = await pool.query("UPDATE users SET name = $1", [user_obj.name])
+        }
+        if(user_obj.age)
+        {
+            const result = await pool.query("UPDATE users SET age = $1", [user_obj.age])
+        }
+        
         return res.json({ success : true, message : "Changes Saved Successfully!"})
     }
     else
